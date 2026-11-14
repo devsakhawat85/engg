@@ -1,0 +1,6 @@
+{
+  "name": "SC Engineering, LLC",
+  "description": "Service-Disabled Veteran-Owned Small Business specializing in Electrical, Mechanical, Plumbing, Fire Protection, and Structural Design in Nashville, TN.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
