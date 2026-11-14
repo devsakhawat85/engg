@@ -17,9 +17,10 @@ export function ContactSection() {
     message: '',
   });
   const [error, setError] = useState<string>('');
+  const [submitting, setSubmitting] = useState<boolean>(false);
   const [submitted, setSubmitted] = useState<boolean>(false);
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
 
@@ -34,7 +35,27 @@ export function ContactSection() {
       return;
     }
 
-    setSubmitted(true);
+    setSubmitting(true);
+    try {
+      const body = new URLSearchParams({
+        'form-name': 'contact',
+        name: form.name.trim(),
+        email: form.email.trim(),
+        subject: form.subject.trim(),
+        message: form.message.trim(),
+      }).toString();
+
+      await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body,
+      });
+    } catch {
+      // Fall back gracefully to confirmation state & direct email option outside Netlify
+    } finally {
+      setSubmitting(false);
+      setSubmitted(true);
+    }
   };
 
   const mailtoUrl = `mailto:${COMPANY_INFO.email}?subject=${encodeURIComponent(
@@ -177,7 +198,15 @@ export function ContactSection() {
                 </div>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} noValidate className="mt-7 space-y-5">
+              <form
+                name="contact"
+                method="POST"
+                data-netlify="true"
+                onSubmit={handleSubmit}
+                noValidate
+                className="mt-7 space-y-5"
+              >
+                <input type="hidden" name="form-name" value="contact" />
                 {error && (
                   <div
                     role="alert"
@@ -262,9 +291,10 @@ export function ContactSection() {
                 <div className="pt-2 flex flex-wrap items-center justify-between gap-4">
                   <button
                     type="submit"
-                    className="px-7 py-3.5 text-sm font-medium text-white bg-[#0A182D] hover:bg-[#1F4A8A] transition-colors duration-200 cursor-pointer whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1F4A8A]"
+                    disabled={submitting}
+                    className="px-7 py-3.5 text-sm font-medium text-white bg-[#0A182D] hover:bg-[#1F4A8A] disabled:opacity-60 transition-colors duration-200 cursor-pointer whitespace-nowrap shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1F4A8A]"
                   >
-                    Submit Inquiry
+                    {submitting ? 'Submitting...' : 'Submit Inquiry'}
                   </button>
 
                   <a
